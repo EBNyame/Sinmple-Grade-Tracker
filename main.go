@@ -31,9 +31,21 @@ func main() {
 
 		case 2:
 			// View all grades.
+			fmt.Println("Grades: ", grades)
 
 		case 3:
 			//Calculate average
+			if len(grades) == 0{
+				fmt.Println("No grades to average")
+				continue
+			}
+				//calculate for the total
+			sum := 0
+			for _, g := range grades{
+				sum += g
+			}
+			average := float64(sum) / float64(len(grades))
+			fmt.Println("Average: ", average)
 
 		case 4:
 			fmt.Println("See you again.... Goodbye!")
