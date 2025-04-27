@@ -1,14 +1,45 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"sort"
+
+	"github.com/bytedance/sonic/encoder"
+)
 
 // Add student grades (integers).
 // View all grades.
 // Calculate and print the average grade.
 // Exit the program.
 
+type StudentGrade struct{
+	Name	string
+	Grade	int
+}
+
+func saveGrades(filename string, grades []StudentGrade){
+	file, err := os.Create(filename)
+	if err != nil{
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	err = encoder.Encode(grades)
+	if err != nil{
+		fmt.Println("Error saving data:", err)
+	}else{
+		fmt.Println("Grades saved to file.")
+	}
+}
+
+func loadGrades(filename string)
+
 func main() {
-	var grades []int
+	var grades []StudentGrade
 
 	for {
 		fmt.Println("1. Add grades")
@@ -23,11 +54,16 @@ func main() {
 		switch choice{
 		case 1:
 			//Add student grades (integers).
+			var name string
+			fmt.Println("Enter your name: ")
+			fmt.Scan(&name)
 			var grade int
-			fmt.Scan(&grade)
 			fmt.Println("Enter grade: ")
-			grades = append(grades, grade)
-			fmt.Println("Grade recorded...")
+			fmt.Scan(&grade)
+
+			student := StudentGrade{Name: name, Grade: grade}
+			grades = append(grades, student)
+			fmt.Println("Grade added for", name)
 
 		case 2:
 			// View all grades.
