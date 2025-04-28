@@ -6,7 +6,6 @@ import (
 	"os"
 	"sort"
 
-	"github.com/bytedance/sonic/encoder"
 )
 
 // Add student grades (integers).
@@ -36,16 +35,38 @@ func saveGrades(filename string, grades []StudentGrade){
 	}
 }
 
-func loadGrades(filename string)
+func loadGrades(filename string) ([]StudentGrade, error) {
+    file, err := os.Open(filename)
+    if err != nil {
+        return nil, err
+    }
+    defer file.Close()
+
+    var grades []StudentGrade
+    decoder := json.NewDecoder(file)
+    err = decoder.Decode(&grades)
+    if err != nil {
+        return nil, err
+    }
+    return grades, nil
+}
 
 func main() {
 	var grades []StudentGrade
+	filename := "grades.json"
+
+	grades, err := loadGrades(filename)
+	if err != nil{
+		fmt.Println("No previous grades found, starting fresh.")
+	}
 
 	for {
+		fmt.Println("\n--- Grade Tracker ---")
 		fmt.Println("1. Add grades")
 		fmt.Println("2. View all grades")
 		fmt.Println("3. Calculate average")
-		fmt.Println("4. Exit")
+		fmt.Println("4. Sort Grades")
+		fmt.Println("4. Save and Exit")
 		fmt.Println("Choose option")
 
 		var choice int
@@ -78,17 +99,40 @@ func main() {
 				//calculate for the total
 			sum := 0
 			for _, g := range grades{
-				sum += g
+				sum += g.Grade
 			}
 			average := float64(sum) / float64(len(grades))
 			fmt.Println("Average: ", average)
 
 		case 4:
-			fmt.Println("See you again.... Goodbye!")
+            fmt.Println("Sort by:")
+            fmt.Println("1. Grade")
+            fmt.Println("2. Name")
+            fmt.Print("Choose an option: ")
+            var sortChoice int
+            fmt.Scan(&sortChoice)
 
-		default:
-			fmt.Println("Invalid input... Choose again")
-		}
-	}
+            if sortChoice == 1 {
+                sort.Slice(grades, func(i, j int) bool {
+                    return grades[i].Grade < grades[j].Grade
+                })
+                fmt.Println("Grades sorted by grade.")
+            } else if sortChoice == 2 {
+                sort.Slice(grades, func(i, j int) bool {
+                    return grades[i].Name < grades[j].Name
+                })
+                fmt.Println("Grades sorted by name.")
+            } else {
+                fmt.Println("Invalid option.")
+            }
 
+        case 5:
+            saveGrades(filename, grades)
+            fmt.Println("Goodbye!")
+            return
+
+        default:
+            fmt.Println("Invalid option.")
+        }
+    }
 }
